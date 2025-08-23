@@ -3,9 +3,9 @@ const request = require('supertest');
 const { expect } = require('chai');
 
 // Testes
-describe('Transfer', () => {
+describe('Transfer External', () => {
     describe('POST /transfers', () => {
-        it.only('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
+        it('External: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
 
             // 1.Capturar o token
             const respostaLogin = await request('http://localhost:3000')
