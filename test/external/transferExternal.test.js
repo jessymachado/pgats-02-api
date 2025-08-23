@@ -5,23 +5,21 @@ const { expect } = require('chai');
 // Testes
 describe('Transfer External', () => {
     describe('POST /transfers', () => {
-        it('External: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
-
-            // 1.Capturar o token
+        beforeEach(async () => {
             const respostaLogin = await request('http://localhost:3000')
                 .post('/users/login')
                 .send({
                     username: 'julio',
                     password: '123456'
-                })
-            const token = respostaLogin.body.token;
+                });
 
-            console.log(token);
+            token = respostaLogin.body.token;
+        });
 
-            // 2.Realizar a transferência
+        it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
             const resposta = await request('http://localhost:3000')
                 .post('/transfers')
-                .set('authorization', `Bearer ${token}`)
+                .set('Authorization', `Bearer ${token}`)
                 .send({
                     from: "julio",
                     to: "isabelle",
@@ -30,6 +28,39 @@ describe('Transfer External', () => {
             
             expect(resposta.status).to.equal(400);
             expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado')
+        });
+
+        it('Usando Mocks: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
+            const resposta = await request("http://localhost:3000")
+                .post('/transfers')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    from: "jose",
+                    to: "isabelle",
+                    value: 100
+                });
+            
+            expect(resposta.status).to.equal(400);
+            expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado');
+        });
+
+        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
+            const resposta = await request('http://localhost:3000')
+                .post('/transfers')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    from: "julio",
+                    to: "priscila",
+                    value: 100
+                });
+            console.log("teste:", resposta.body)
+            expect(resposta.status).to.equal(201);
+            
+            // Validação com um Fixture
+            const respostaEsperada = require('../fixture/respostas/quandoInformoValoresValidosEuTenhoSucessoCom201Created.json')
+            delete resposta.body.date;
+            delete respostaEsperada.date; 
+            expect(resposta.body).to.deep.equal(respostaEsperada);
         });
     });
 });
