@@ -45,7 +45,7 @@ describe('Transfer Controller', () => {
             sinon.restore();
         });
 
-        it.only('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
+        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
             // Preparando os Dados
                 // Carregar o arquivo
                 // Preparar a forma de ignorar os campos dinamicos
@@ -69,10 +69,16 @@ describe('Transfer Controller', () => {
             
             expect(resposta.status).to.equal(201);
             
+            //Validacao com Fixture
+            const respostaEsperada = require('../fixture/respostas/quandoInformoValoresValidosEuTenhoSucessoCom201Created.json')
+            delete resposta.body.date;
+            delete respostaEsperada.date;
+            expect(resposta.body).to.deep.equal(respostaEsperada);
+
             // Um expect para comparar a Resposta.body com a String contida no arquivo
-            expect(resposta.body).to.have.property('from', 'julio');
-            expect(resposta.body).to.have.property('to', 'priscila');
-            expect(resposta.body).to.have.property('value', 100);
+            //expect(resposta.body).to.have.property('from', 'julio');
+            //expect(resposta.body).to.have.property('to', 'priscila');
+            //expect(resposta.body).to.have.property('value', 100);
 
             console.log(resposta.body)
 
