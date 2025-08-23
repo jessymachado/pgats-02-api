@@ -12,15 +12,28 @@ const transferService = require('../../service/transferService');
 // Testes
 describe('Transfer Controller', () => {
     describe('POST /transfers', () => {
-        it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
+        let token = null
+        
+        beforeEach( async () => {
+             const respostaLogin = await request(app)
+                .post('/users/login')
+                .send({
+                    username: 'julio',
+                    password: '123456'
+                })
+            token = respostaLogin.body.token;
+        })
+
+        it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {           
             const resposta = await request(app)
                 .post('/transfers')
+                .set('authorization', `Bearer ${token}`)
                 .send({
                     from: "julio",
                     to: "priscila",
                     value: 100
                 });
-            
+
             expect(resposta.status).to.equal(400);
             expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado')
         });
@@ -28,16 +41,17 @@ describe('Transfer Controller', () => {
         it('Usando Mocks: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
             // Mocar apenas a função transfer do Service
             const transferServiceMock = sinon.stub(transferService, 'transfer');
-            transferServiceMock.throws(new Error('Usuário remetente ou destinatário não encontrado'));
+            transferServiceMock.throws(new Error('Usuário remetente ou destinatário não encontrado'));           
 
             const resposta = await request(app)
                 .post('/transfers')
+                .set('authorization', `Bearer ${token}`)
                 .send({
                     from: "julio",
                     to: "priscila",
                     value: 100
                 });
-            
+
             expect(resposta.status).to.equal(400);
             expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado')
 
@@ -45,30 +59,27 @@ describe('Transfer Controller', () => {
             sinon.restore();
         });
 
-        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
-            // Preparando os Dados
-                // Carregar o arquivo
-                // Preparar a forma de ignorar os campos dinamicos
-
+        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {                
             // Mocar apenas a função transfer do Service
             const transferServiceMock = sinon.stub(transferService, 'transfer');
-            transferServiceMock.returns({ 
-                from: "julio", 
-                to: "priscila", 
-                value: 100, 
-                date: new Date().toISOString() 
+            transferServiceMock.returns({
+                from: "julio",
+                to: "priscila",
+                value: 100,
+                date: new Date().toISOString()
             });
 
             const resposta = await request(app)
                 .post('/transfers')
+                .set('authorization', `Bearer ${token}`)
                 .send({
                     from: "julio",
                     to: "priscila",
                     value: 100
                 });
-            
+
             expect(resposta.status).to.equal(201);
-            
+
             //Validacao com Fixture
             const respostaEsperada = require('../fixture/respostas/quandoInformoValoresValidosEuTenhoSucessoCom201Created.json')
             delete resposta.body.date;
