@@ -47,6 +47,21 @@ Esta API permite o registro, login, consulta de usuários e transferências de v
   - Body: `{ "from": "string", "to": "string", "value": number }`
 - `GET /transfers`
 
+### GraphQL Types, Queries e Mutations
+
+Rode `npm run start-graphql` para executar a API do GraphQL e acesse a URL http://localhost:4000/graphql para acessá-la.
+
+- **Types:**
+  - `User`: username, favorecidos, saldo
+  - `Transfer`: from, to, value, date
+- **Queries:**
+  - `users`: lista todos os usuários
+  - `transfers`: lista todas as transferências (requer autenticação JWT)
+- **Mutations:**
+  - `registerUser(username, password, favorecidos)`: retorna User
+  - `loginUser(username, password)`: retorna token + User
+  - `createTransfer(from, to, value)`: retorna Transfer (requer autenticação JWT)
+
 ## Regras de negócio
 - Não é permitido registrar usuários duplicados.
 - Login exige usuário e senha.
@@ -55,7 +70,8 @@ Esta API permite o registro, login, consulta de usuários e transferências de v
 
 ## Testes
 - O arquivo `app.js` pode ser importado em ferramentas de teste como Supertest.
+- Para testar a API GraphQL, importe `graphql/app.js` nos testes.
 
 ---
 
-Para dúvidas, consulte a documentação Swagger ou o código-fonte.
+Para dúvidas, consulte a documentação Swagger, GraphQL Playground ou o código-fonte.
