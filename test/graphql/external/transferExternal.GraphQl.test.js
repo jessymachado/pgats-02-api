@@ -56,9 +56,7 @@ describe('Transfer External GraphQL', () => {
 
         delete resposta.body.data.createTransfer.date;
         delete respostaEsperada.data.createTransfer.date; 
-        expect(resposta.body).to.deep.equal(respostaEsperada);
-
-       // console.log(resposta.body)
+        expect(resposta.body).to.deep.equal(respostaEsperada);       
     });
 
 
@@ -86,9 +84,7 @@ describe('Transfer External GraphQL', () => {
         expect(resposta.status).to.equal(200);
         expect(resposta.body.errors).to.be.an('array');
         const mensagem = resposta.body.errors[0].message;
-
-        console.log(resposta.body)
-        // Pode ser "Token não fornecido." ou "Autenticação obrigatória" dependendo do resolver
+        
         expect(mensagem).to.equal('Transferência acima de R$ 5.000,00 só para favorecidos');
     });
 
@@ -99,12 +95,11 @@ describe('Transfer External GraphQL', () => {
         const resposta = await request('http://localhost:4000')
             .post('/graphql')
             .send(query);
-
-        // Apollo retorna 200 mas o erro está em resposta.body.errors
+        
         expect(resposta.status).to.equal(200);
         expect(resposta.body.errors).to.be.an('array');
         const mensagem = resposta.body.errors[0].message;
-        // Pode ser "Token não fornecido." ou "Autenticação obrigatória" dependendo do resolver
+        
         expect(mensagem).to.match(/Token não fornecido|Autenticação obrigatória/);
     });
 
