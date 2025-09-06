@@ -1,6 +1,7 @@
 // Bibliotecas
 const request = require('supertest');
 const { expect, use } = require('chai');
+require('dotenv').config();
 
 const chaiExclude = require('chai-exclude')
 use(chaiExclude)
@@ -13,7 +14,7 @@ describe('Transfer External GraphQL', () => {
 
     before(async () => {
         const loginUser = require('../fixture/requisicoes/login/loginUser.json')
-        const res = await request('http://localhost:4000')
+        const res = await request(process.env.BASE_URL_GRAPHQL)
             .post('/graphql')
             .send(loginUser);
         token = res.body.data.loginUser.token;
@@ -22,7 +23,7 @@ describe('Transfer External GraphQL', () => {
     it('Quando informo um valor acima do limite para favorecidos, porém considerando um não favorecido, recebo validação de limite', async () => {
         const createTransfer = require('../fixture/requisicoes/transferencias/payloadValoresExcedenteLimite.json')
         createTransfer.variables.value = 5001
-        const resposta = await request('http://localhost:4000')
+        const resposta = await request(process.env.BASE_URL_GRAPHQL)
             .post('/graphql')
             .set('Authorization', `Bearer ${token}`)
             .send(createTransfer);
@@ -40,7 +41,7 @@ describe('Transfer External GraphQL', () => {
         const createTransfer = require('../fixture/requisicoes/transferencias/payloadValoresValidosSucessoTransferencia.json')
         createTransfer.variables.value = 150
 
-        const respostaTransferencia = await request('http://localhost:4000')
+        const respostaTransferencia = await request(process.env.BASE_URL_GRAPHQL)
             .post('/graphql')
             .set('Authorization', `Bearer ${token}`)
             .send(createTransfer);
@@ -63,7 +64,7 @@ describe('Transfer External GraphQL', () => {
         const query = {
             query: `query { transfers { from to value date } }`
         };
-        const resposta = await request('http://localhost:4000')
+        const resposta = await request(process.env.BASE_URL_GRAPHQL)
             .post('/graphql')
             .send(query);
 
