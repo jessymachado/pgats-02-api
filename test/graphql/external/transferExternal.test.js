@@ -10,7 +10,7 @@ use(chaiExclude)
 
 describe('Transfer External GraphQL', () => {
     let token;
-    
+
 
     before(async () => {
         const loginUser = require('../fixture/requisicoes/login/loginUser.json')
@@ -32,7 +32,7 @@ describe('Transfer External GraphQL', () => {
 
         //console.log(resposta.body)
         expect(resposta.body.errors).to.be.an('array');
-        
+
         const mensagem = resposta.body.errors[0].message;
         expect(mensagem).to.equal('Transferência acima de R$ 5.000,00 só para favorecidos');
     });
@@ -46,7 +46,7 @@ describe('Transfer External GraphQL', () => {
             .set('Authorization', `Bearer ${token}`)
             .send(createTransfer);
 
-        expect(respostaTransferencia.status).to.equal(200);        
+        expect(respostaTransferencia.status).to.equal(200);
 
         const dataRetornada = respostaTransferencia.body.data.createTransfer.date;
         expect(dataRetornada).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
@@ -76,8 +76,8 @@ describe('Transfer External GraphQL', () => {
     });
 
     it('Quando informo um valor não disponível na conta para realizar a transferência', async () => {
-        const respostaTransferencia = await request('http://localhost:4000/graphql')
-            .post('')
+        const respostaTransferencia = await request(process.env.BASE_URL_GRAPHQL)
+            .post('/graphql')
             .set('Authorization', `Bearer ${token}`)
             .send({
                 query: `
@@ -105,6 +105,19 @@ describe('Transfer External GraphQL', () => {
 
         //console.log(respostaTransferencia.body)
 
+    });
+
+    const testesDeErrosDeNegocio = require('../fixture/requisicoes/transferencias/createTransferWithError.json');
+    testesDeErrosDeNegocio.forEach(teste => {
+        it(`Testando a regra relacionada a ${teste.nomeDoTeste}`, async () => {
+            const respostaTransferencia = await request(process.env.BASE_URL_GRAPHQL)
+                .post('/graphql')
+                .set('Authorization', `Bearer ${token}`)
+                .send(teste.createTransfer);
+
+            expect(respostaTransferencia.status).to.equal(200);
+            expect(respostaTransferencia.body.errors[0].message).to.equal(teste.mensagemEsperada);
+        });
     });
 
 });
